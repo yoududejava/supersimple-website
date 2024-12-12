@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱情主题电子相册</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f5f1;
+        }
+
+       .album {
+            perspective: 1500px;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+       .book {
+            width: 60%;
+            height: 80%;
+            position: relative;
+            transform-style: preserve-3d;
+            background: linear-gradient(to right, #d4afcd, #f7f0f5);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: none;
+        }
+
+       .spine {
+            position: absolute;
+            top: 0;
+            left: -5%;
+            width: 5%;
+            height: 100%;
+            background: #c0a9b0;
+            border-radius: 10px 0 0 10px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+       .coil {
+            position: absolute;
+            top: 10%;
+            left: -2.5%;
+            width: 10%;
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+       .coil div {
+            width: 10px;
+            height: 20px;
+            background: #606060;
+            border-radius: 5px;
+        }
+
+       .page {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            transition: transform 1s ease-in-out;
+        }
+
+       .page img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+       .page h1,
+       .page h2 {
+            text-align: center;
+            padding-top: 40%;
+            color: #e63946;
+            font-family: 'Georgia', serif;
+        }
+
+       .cover {
+            background: linear-gradient(to bottom, #fbc2eb, #a6c1ee);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+       .cover h1 {
+            font-size: 3em;
+            margin: 0;
+            font-family: 'Georgia', serif;
+        }
+
+       .cover h2 {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+       .cover.heart {
+            font-size: 4em;
+            margin-top: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        audio {
+            display: none;
+        }
+
+        /* 横屏时的样式调整，这里简单示例让内容水平居中显示，你可按实际需求细化样式 */
+       .landscape-mode.book {
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="album">
+        <div class="book" id="book">
+            <div class="spine"></div>
+            <div class="coil">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <div class="page cover">
+                <h1>我们的爱情故事</h1>
+                <h2>记录每一个珍贵瞬间</h2>
+                <div class="heart">❤️</div>
+            </div>
+            <div class="page"><img src="https://cdn.pixabay.com/photo/2021/01/05/23/20/couple-5892661_640.jpg" alt="照片1"></div>
+            <div class="page"><img src="https://cdn.pixabay.com/photo/2015/12/15/10/55/beach-1094040_640.jpg" alt="照片2"></div>
+            <div class="page"><img src="https://cdn.pixabay.com/photo/2016/01/06/16/52/love-1124461_640.jpg" alt="照片3"></div>
+            <div class="page" style="background-color: #f7d7e8;">
+                <h2>永远爱你 ❤️</h2>
+            </div>
+        </div>
+    </div>
+
+    <audio id="background-music" autoplay loop>
+        <source src="music.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放。
+    </audio>
+
+    <script>
+        let currentPage = 0;
+        const pages = document.querySelectorAll('.page');
+        let startX = 0;
+        let endX = 0;
+
+        // 获取页面元素
+        const book = document.querySelector('.book');
+
+        // 检测是否为移动设备
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // 检测屏幕方向变化的函数
+        function handleOrientationChange() {
+            if (window.matchMedia("(orientation: landscape)").matches) {
+                // 如果是横屏，移除提示相关元素（如果有添加的话），并添加横屏模式的类来应用相应样式
+                book.classList.add('landscape-mode');
+            } else {
+                // 如果是竖屏，添加提示让用户横屏的相关逻辑（这里简单示例用 alert，实际可采用更友好的 UI 提示方式）
+                if (isMobileDevice()) {
+                    alert('请将手机横屏查看相册哦，以获得更好的体验');
+                    book.classList.remove('landscape-mode');
+                }
+            }
+        }
+
+        pages.forEach((page, index) => {
+            page.style.zIndex = pages.length - index;
+        });
+
+        document.querySelector('.book').addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+
+        document.querySelector('.book').addEventListener('touchend', (e) => {
+            endX = e.changedTouches[0].clientX;
+            handleSwipe();
+        });
+
+        document.querySelector('.book').addEventListener('mousedown', (e) => {
+            startX = e.clientX;
+        });
+
+        document.querySelector('.book').addEventListener('mouseup', (e) => {
+            endX = e.clientX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (startX - endX > 50) {
+                nextPage();
+            } else if (endX - startX > 50) {
+                prevPage();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < pages.length - 1) {
+                const page = pages[currentPage];
+                page.style.transform = `rotateY(-180deg)`;
+                page.style.zIndex = currentPage;
+                currentPage++;
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                const page = pages[currentPage];
+                page.style.transform = `rotateY(0deg)`;
+                page.style.zIndex = pages.length - currentPage;
+            }
+        }
+
+        // 初始加载时检测一次屏幕方向
+        window.addEventListener('load', function () {
+            handleOrientationChange();
+        });
+
+        // 监听屏幕方向变化事件
+        window.addEventListener('orientationchange', handleOrientationChange);
+    </script>
+</body>
+
+</html>
